@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentation — WP Retention</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a08;
+    --off-white: #f2f0e8;
+    --cream: #e8e4d8;
+    --accent: #c8f542;
+    --accent-dim: #a8d028;
+    --red: #ff3d2e;
+    --muted: #7a7868;
+    --border: rgba(242,240,232,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--off-white); font-family: 'DM Mono', monospace; font-size: 15px; line-height: 1.7; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.6; }
+
+  nav { padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,10,8,0.92); backdrop-filter: blur(12px); z-index: 100; }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; text-decoration: none; color: var(--off-white); }
+  .logo span { color: var(--accent); }
+  nav a { color: var(--muted); text-decoration: none; font-size: 13px; letter-spacing: 0.05em; transition: color 0.2s; }
+  nav a:hover { color: var(--off-white); }
+  .nav-cta { background: var(--accent); color: var(--black) !important; padding: 8px 20px; }
+
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 73px); }
+
+  /* Sidebar */
+  .sidebar { border-right: 1px solid var(--border); padding: 48px 32px; position: sticky; top: 73px; height: calc(100vh - 73px); overflow-y: auto; }
+  .sidebar-section { margin-bottom: 32px; }
+  .sidebar-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .sidebar-label::before { content: ''; display: block; width: 12px; height: 1px; background: var(--accent); }
+  .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-nav a { color: var(--muted); text-decoration: none; font-size: 13px; padding: 6px 0; display: block; transition: color 0.2s; border-left: 2px solid transparent; padding-left: 12px; }
+  .sidebar-nav a:hover, .sidebar-nav a.active { color: var(--off-white); border-left-color: var(--accent); }
+
+  /* Content */
+  .content { padding: 60px 64px; max-width: 800px; }
+  .content h1 { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 16px; }
+  .content .lead { color: var(--muted); font-size: 16px; margin-bottom: 60px; max-width: 540px; line-height: 1.7; }
+  .content h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -1px; margin: 60px 0 20px; padding-top: 60px; border-top: 1px solid var(--border); }
+  .content h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+  .content h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin: 32px 0 12px; color: var(--off-white); }
+  .content p { color: var(--muted); margin-bottom: 16px; }
+  .content p strong { color: var(--off-white); font-weight: 400; }
+  .content ul, .content ol { color: var(--muted); padding-left: 20px; margin-bottom: 16px; }
+  .content li { margin-bottom: 8px; line-height: 1.7; }
+  .content li strong { color: var(--off-white); font-weight: 400; }
+  .content code { background: rgba(200,245,66,0.08); color: var(--accent); padding: 2px 8px; font-family: 'DM Mono', monospace; font-size: 13px; border: 1px solid rgba(200,245,66,0.15); }
+  .content pre { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 24px; margin: 20px 0; overflow-x: auto; }
+  .content pre code { background: none; border: none; padding: 0; color: var(--off-white); font-size: 13px; line-height: 1.7; }
+
+  .callout { background: rgba(200,245,66,0.05); border-left: 3px solid var(--accent); padding: 20px 24px; margin: 24px 0; }
+  .callout p { color: var(--off-white); margin: 0; font-size: 13px; line-height: 1.7; }
+  .callout.warning { background: rgba(255,61,46,0.05); border-left-color: var(--red); }
+  .callout.warning p { color: var(--muted); }
+
+  .step-list { list-style: none; padding: 0; counter-reset: steps; margin-bottom: 24px; }
+  .step-list li { counter-increment: steps; display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .step-list li::before { content: counter(steps); background: var(--accent); color: var(--black); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-list li span { color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .step-list li span strong { color: var(--off-white); font-weight: 400; display: block; margin-bottom: 4px; }
+
+  .score-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  .score-table th { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--accent); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 400; }
+  .score-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+  .score-table td:first-child { color: var(--off-white); }
+  .score-table tr:last-child td { border-bottom: none; }
+
+  footer { border-top: 1px solid var(--border); padding: 32px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; flex-wrap: wrap; gap: 16px; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 32px; }
+    .content { padding: 40px 24px; }
+    .content h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">WP<span>Retention</span></a>
+  <div style="display:flex;gap:32px;align-items:center;">
+    <a href="wp-retention-docs.html">Documentation</a>
+    <a href="wp-retention-support.html">Support</a>
+    <a href="https://checkout.freemius.com/plugin/27524/plan/45522/" class="nav-cta">Get the plugin →</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Getting Started</div>
+      <ul class="sidebar-nav">
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#activation">License activation</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Configuration</div>
+      <ul class="sidebar-nav">
+        <li><a href="#scoring">Scoring weights</a></li>
+        <li><a href="#triggers">Triggers</a></li>
+        <li><a href="#cancel-flow">Cancel flow</a></li>
+        <li><a href="#email">Email template</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Reference</div>
+      <ul class="sidebar-nav">
+        <li><a href="#hooks">Developer hooks</a></li>
+        <li><a href="#cron">Cron & scoring</a></li>
+        <li><a href="#database">Database</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="content">
+    <h1>Documentation</h1>
+    <p class="lead">Everything you need to install, configure, and get the most out of WP Retention.</p>
+
+    <!-- Requirements -->
+    <h2 id="requirements">Requirements</h2>
+    <p>Before installing WP Retention, make sure your environment meets the following:</p>
+    <ul>
+      <li><strong>WordPress</strong> 6.0 or higher</li>
+      <li><strong>PHP</strong> 7.4 or higher</li>
+      <li>At least one of: <strong>MemberPress</strong> (any version) or <strong>WooCommerce Subscriptions</strong> 3.0+</li>
+      <li>WP-Cron enabled, or a real server cron job configured</li>
+      <li>MySQL 5.7+ or MariaDB 10.3+</li>
+    </ul>
+    <div class="callout">
+      <p><strong>Note:</strong> WP Retention does not work as a standalone plugin. It requires either MemberPress or WooCommerce Subscriptions to be active and configured on your site.</p>
+    </div>
+
+    <!-- Installation -->
+    <h2 id="installation">Installation</h2>
+    <ol class="step-list">
+      <li><span><strong>Download the plugin</strong> Download the <code>wp-retention.zip</code> file from your Freemius account after purchase.</span></li>
+      <li><span><strong>Upload via WordPress admin</strong> Go to <strong>Plugins → Add New → Upload Plugin</strong>, select the zip file and click Install Now.</span></li>
+      <li><span><strong>Activate</strong> Click Activate Plugin. WP Retention will automatically create its database table and a cancel flow page in your WordPress install.</span></li>
+      <li><span><strong>Configure</strong> Go to <strong>WP Retention → Settings</strong> to adjust scoring weights, trigger thresholds, and email templates.</span></li>
+    </ol>
+
+    <div class="callout warning">
+      <p>On activation, the plugin creates a page titled "Cancel Subscription" with the shortcode <code>[wpr_cancel_flow]</code>. Do not delete this page — it powers the cancel flow interception.</p>
+    </div>
+
+    <!-- License -->
+    <h2 id="activation">License activation</h2>
+    <p>After purchase, Freemius sends you a license key by email. To activate:</p>
+    <ol class="step-list">
+      <li><span><strong>Go to WP Retention in your dashboard</strong> You'll see a license activation prompt on first use.</span></li>
+      <li><span><strong>Enter your license key</strong> Paste the key from your purchase confirmation email.</span></li>
+      <li><span><strong>Click Activate</strong> The plugin connects to Freemius to validate and unlock all features.</span></li>
+    </ol>
+    <p>Your license allows installation on <strong>1 site</strong> (Solo) or <strong>up to 5 sites</strong> (Agency). To move a license to a different site, deactivate it first from the old site via <strong>WP Retention → Account</strong>.</p>
+
+    <!-- Scoring -->
+    <h2 id="scoring">Scoring weights</h2>
+    <p>WP Retention calculates a <strong>risk score from 0 to 100</strong> for every active subscriber. A score of 0 means fully engaged; 100 means imminent churn.</p>
+    <p>The score is composed of four weighted signals. You can adjust the weight of each signal in <strong>Settings → Scoring Weights</strong>. Weights must total 100 — they are normalised automatically if they don't.</p>
+
+    <table class="score-table">
+      <thead>
+        <tr>
+          <th>Signal</th>
+          <th>Default weight</th>
+          <th>What it measures</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Login inactivity</td>
+          <td>35%</td>
+          <td>Days since the subscriber last logged in. No login ever recorded scores 80/100 on this component.</td>
+        </tr>
+        <tr>
+          <td>Content inactivity</td>
+          <td>25%</td>
+          <td>Number of protected content views in the last 90 days. Zero views scores 95/100 on this component.</td>
+        </tr>
+        <tr>
+          <td>Payment failures</td>
+          <td>30%</td>
+          <td>Number of failed payment events in the last 90 days. Two or more failures scores 100/100 on this component.</td>
+        </tr>
+        <tr>
+          <td>Subscription age</td>
+          <td>10%</td>
+          <td>New subscribers (under 30 days) carry a higher baseline risk. Subscribers over 90 days score 0 on this component.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Recommended weight profiles</h3>
+    <p><strong>Content-heavy membership site (courses, LMS):</strong> raise Content inactivity to 40%, lower Login inactivity to 25%.</p>
+    <p><strong>SaaS-style tool:</strong> raise Payment failures to 40%, lower Subscription age to 5%.</p>
+    <p><strong>Newsletter / community:</strong> raise Login inactivity to 50%, lower Content inactivity to 15%.</p>
+
+    <!-- Triggers -->
+    <h2 id="triggers">Triggers</h2>
+    <p>When a subscriber's score reaches or exceeds the <strong>Alert Threshold</strong> (default: 60), WP Retention automatically fires a trigger action.</p>
+    <p>Three trigger modes are available in <strong>Settings → Trigger Settings</strong>:</p>
+    <ul>
+      <li><strong>Email only</strong> — sends a personalised retention email via <code>wp_mail()</code></li>
+      <li><strong>Coupon only</strong> — generates a unique WooCommerce coupon tied to the subscriber's email (requires WooCommerce)</li>
+      <li><strong>Email + Coupon</strong> — both actions simultaneously</li>
+    </ul>
+    <p>A <strong>cooldown period</strong> (default: 30 days) prevents the same subscriber from being triggered more than once per period. Adjust this in Settings to avoid over-solicitation.</p>
+
+    <!-- Cancel flow -->
+    <h2 id="cancel-flow">Cancel flow</h2>
+    <p>WP Retention intercepts the default cancellation button in MemberPress and WooCommerce Subscriptions and redirects subscribers to a custom cancel page.</p>
+    <p>The flow has three steps:</p>
+    <ol>
+      <li><strong>Reason selection</strong> — the subscriber picks a cancellation reason from up to 5 options (configurable)</li>
+      <li><strong>Conditional offer</strong> — an offer is presented based on the selected reason (discount, pause, or downgrade)</li>
+      <li><strong>Confirmation</strong> — the subscriber either accepts the offer or confirms cancellation</li>
+    </ol>
+
+    <h3>Default reason-to-offer mapping</h3>
+    <table class="score-table">
+      <thead><tr><th>Reason</th><th>Offer type</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>It's too expensive</td><td>Discount</td><td>Generates a % coupon and emails it</td></tr>
+        <tr><td>I need a break</td><td>Pause</td><td>Sets subscription to on-hold for 30 days, schedules reactivation</td></tr>
+        <tr><td>Not getting enough value</td><td>Downgrade</td><td>Flags user for admin follow-up, no automatic action</td></tr>
+        <tr><td>Finished what I needed</td><td>None</td><td>Proceeds to cancellation</td></tr>
+        <tr><td>Another reason</td><td>None</td><td>Proceeds to cancellation</td></tr>
+      </tbody>
+    </table>
+
+    <p>You can customise the reasons and their labels using the <code>wpr_cancellation_reasons</code> filter hook.</p>
+
+    <!-- Email -->
+    <h2 id="email">Email template</h2>
+    <p>The retention email is sent via <code>wp_mail()</code> — no external email service required. Configure the subject and body in <strong>Settings → Retention Email Template</strong>.</p>
+    <p>Available template variables:</p>
+    <ul>
+      <li><code>{first_name}</code> — subscriber's first name</li>
+      <li><code>{site_name}</code> — your WordPress site name</li>
+      <li><code>{login_url}</code> — your WordPress login URL</li>
+      <li><code>{offer_text}</code> — automatically replaced with the coupon code if a coupon was generated, or a generic message if not</li>
+    </ul>
+
+    <!-- Hooks -->
+    <h2 id="hooks">Developer hooks</h2>
+    <p>WP Retention exposes several filters and actions for developers who need to customise behaviour.</p>
+
+    <h3>Filters</h3>
+    <pre><code>// Customise cancellation reasons and their offer types
+add_filter( 'wpr_cancellation_reasons', function( $reasons ) {
+    $reasons['technical'] = [
+        'label' => 'Technical issues',
+        'offer' => 'discount',
+    ];
+    return $reasons;
+} );
+
+// Customise which post types are tracked for content views
+add_filter( 'wpr_tracked_post_types', function( $types ) {
+    $types[] = 'podcast_episode';
+    return $types;
+} );</code></pre>
+
+    <h3>Actions</h3>
+    <pre><code>// Fire after a risk score is calculated for a user
+add_action( 'wpr_score_calculated', function( $user_id, $score ) {
+    // Your custom logic here
+}, 10, 2 );
+
+// Fire after a trigger action is sent
+add_action( 'wpr_trigger_fired', function( $user_id, $score, $action ) {
+    // Log to external system, etc.
+}, 10, 3 );</code></pre>
+
+    <!-- Cron -->
+    <h2 id="cron">Cron & scoring</h2>
+    <p>WP Retention calculates risk scores once per day via WP-Cron, scheduled at <strong>2:00 AM server time</strong>. Scoring runs in batches of 50 subscribers to avoid PHP timeouts.</p>
+    <p>On shared hosting (OVH, Ionos, etc.), WP-Cron only fires when someone visits your site. For reliable daily scoring, configure a real server cron job:</p>
+    <pre><code># Add to crontab (crontab -e)
+0 2 * * * php /path/to/your/wordpress/wp-cron.php --allow-root > /dev/null 2>&1</code></pre>
+    <p>And disable WordPress's built-in pseudo-cron in <code>wp-config.php</code>:</p>
+    <pre><code>define( 'DISABLE_WP_CRON', true );</code></pre>
+    <p>To trigger scoring manually, go to <strong>WP Retention → At-Risk</strong> and click <strong>"Run scoring now"</strong>. Individual subscribers can be re-scored using the Re-score button in the dashboard table.</p>
+
+    <!-- Database -->
+    <h2 id="database">Database</h2>
+    <p>WP Retention creates one custom table: <code>{prefix}wpr_events</code>. All other data is stored in <code>wp_usermeta</code> under the <code>_wpr_</code> prefix.</p>
+
+    <h3>wpr_events columns</h3>
+    <table class="score-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>BIGINT</td><td>Auto-increment primary key</td></tr>
+        <tr><td>user_id</td><td>BIGINT</td><td>WordPress user ID</td></tr>
+        <tr><td>event_type</td><td>VARCHAR(50)</td><td>login, content_view, payment_failed, cancel_attempt, offer_accepted, trigger_fired</td></tr>
+        <tr><td>event_data</td><td>LONGTEXT</td><td>JSON contextual data (post_id, subscription_id, offer_type, etc.)</td></tr>
+        <tr><td>created_at</td><td>DATETIME</td><td>UTC timestamp</td></tr>
+      </tbody>
+    </table>
+
+    <h3>wp_usermeta keys</h3>
+    <table class="score-table">
+      <thead><tr><th>Key</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>_wpr_risk_score</td><td>Current risk score (0–100)</td></tr>
+        <tr><td>_wpr_last_scored</td><td>Datetime of last score calculation</td></tr>
+        <tr><td>_wpr_last_login</td><td>Datetime of last recorded login</td></tr>
+        <tr><td>_wpr_trigger_sent_at</td><td>Datetime of last trigger action</td></tr>
+        <tr><td>_wpr_coupon_code</td><td>Last generated coupon code</td></tr>
+        <tr><td>_wpr_pause_started</td><td>Datetime subscription was paused</td></tr>
+      </tbody>
+    </table>
+
+    <!-- FAQ -->
+    <h2 id="faq">FAQ</h2>
+
+    <h3>Does the plugin work with both MemberPress and WooCommerce Subscriptions simultaneously?</h3>
+    <p>Yes. If both plugins are active, WP Retention hooks into both and merges subscriber IDs for scoring. A subscriber tracked via both plugins is de-duplicated automatically.</p>
+
+    <h3>What happens if WP-Cron doesn't run for several days?</h3>
+    <p>Scores simply aren't recalculated. Existing scores remain until the next cron execution. No data is lost. Use the "Run scoring now" button to manually trigger a recalculation.</p>
+
+    <h3>Can I exclude certain subscribers from scoring?</h3>
+    <p>Not via the admin UI in v1.0. Developers can use the <code>wpr_cancellation_reasons</code> filter or hook into <code>wpr_score_calculated</code> to implement custom exclusion logic.</p>
+
+    <h3>Does the pause feature work with MemberPress?</h3>
+    <p>Pausing via the cancel flow currently only works with WooCommerce Subscriptions (which supports on-hold status natively). For MemberPress, the downgrade offer is used instead. Full MemberPress pause support is planned for v1.1.</p>
+
+    <h3>How do I uninstall cleanly?</h3>
+    <p>Deactivate the plugin, then delete it via the WordPress plugin screen. The uninstall routine automatically drops the <code>wpr_events</code> table, removes all <code>_wpr_*</code> usermeta, deletes the cancel flow page, and removes all plugin options.</p>
+  </main>
+</div>
+
+<footer>
+  <a href="index.html" class="logo" style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;text-decoration:none;color:var(--off-white);">WP<span style="color:var(--accent)">Retention</span></a>
+  <div style="display:flex;gap:32px;">
+    <a href="wp-retention-docs.html" style="color:var(--muted);text-decoration:none;font-size:12px;">Documentation</a>
+    <a href="wp-retention-support.html" style="color:var(--muted);text-decoration:none;font-size:12px;">Support</a>
+    <a href="wp-retention-privacy.html" style="color:var(--muted);text-decoration:none;font-size:12px;">Privacy Policy</a>
+  </div>
+  <span style="font-size:12px;color:var(--muted);">Built for WordPress operators who keep things simple.</span>
+</footer>
+
+<script>
+  // Highlight active sidebar link on scroll
+  const headings = document.querySelectorAll('.content h2[id], .content h3[id]');
+  const links = document.querySelectorAll('.sidebar-nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  headings.forEach(h => observer.observe(h));
+</script>
+</body>
+</html>
