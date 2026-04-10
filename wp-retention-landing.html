@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WP Retention — Stop Churn Before It Happens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a08;
+    --off-white: #f2f0e8;
+    --cream: #e8e4d8;
+    --accent: #c8f542;
+    --accent-dim: #a8d028;
+    --red: #ff3d2e;
+    --muted: #7a7868;
+    --border: rgba(242,240,232,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* NAV */
+  nav {
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,8,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  nav a:hover { color: var(--off-white); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: var(--black) !important;
+    padding: 8px 20px;
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    transition: background 0.2s, transform 0.1s !important;
+  }
+
+  .nav-cta:hover {
+    background: var(--accent-dim) !important;
+    transform: translateY(-1px);
+  }
+
+  /* HERO */
+  .hero {
+    padding: 120px 32px 100px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  h1 .line2 {
+    color: var(--accent);
+    display: block;
+  }
+
+  h1 .line3 {
+    color: var(--muted);
+    display: block;
+    font-weight: 400;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 540px;
+    line-height: 1.7;
+    margin-bottom: 56px;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+
+  .hero-sub strong {
+    color: var(--off-white);
+    font-weight: 400;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--black);
+    padding: 16px 36px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+  }
+
+  .hero-price-note {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .hero-price-note strong {
+    color: var(--off-white);
+  }
+
+  /* COMPARISON BAR */
+  .comparison-bar {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 32px;
+    background: rgba(255,255,255,0.02);
+    animation: fadeUp 0.7s 0.5s ease both;
+  }
+
+  .comparison-bar .container {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .comp-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .comp-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .comp-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .comp-value.bad { color: var(--red); text-decoration: line-through; opacity: 0.7; }
+  .comp-value.good { color: var(--accent); }
+
+  .comp-arrow {
+    font-size: 24px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 0;
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  /* PROBLEM */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 60px;
+  }
+
+  .problem-card {
+    background: rgba(255,255,255,0.03);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .problem-card:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .problem-card::before {
+    content: attr(data-n);
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 100px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.03);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .problem-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .problem-card p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .problem-card p strong {
+    color: var(--off-white);
+  }
+
+  /* HOW IT WORKS */
+  .how-section {
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .steps {
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .step {
+    padding: 40px 32px;
+    background: rgba(255,255,255,0.02);
+    position: relative;
+  }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-num::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .step h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+
+  .step p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* FEATURES */
+  .features-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 60px;
+  }
+
+  .feature-item {
+    padding: 40px;
+    border-left: 2px solid transparent;
+    background: rgba(255,255,255,0.02);
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .feature-item:hover {
+    border-left-color: var(--accent);
+    background: rgba(200,245,66,0.03);
+  }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(200,245,66,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+
+  .feature-item h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+
+  .feature-item p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* VS TABLE */
+  .vs-section { }
+
+  .vs-table {
+    margin-top: 60px;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .vs-table th {
+    padding: 20px 28px;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .vs-table th.highlight {
+    color: var(--accent);
+    background: rgba(200,245,66,0.04);
+  }
+
+  .vs-table td {
+    padding: 18px 28px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .vs-table td.highlight {
+    background: rgba(200,245,66,0.03);
+  }
+
+  .vs-table tr:last-child td { border-bottom: none; }
+
+  .vs-table .feature-name {
+    color: var(--off-white);
+  }
+
+  .check { color: var(--accent); font-size: 16px; }
+  .cross { color: var(--red); opacity: 0.6; font-size: 14px; }
+  .partial { color: var(--muted); font-size: 13px; font-style: italic; }
+
+  /* PRICING */
+  .pricing-section {
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pricing-card {
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .price-plan {
+    padding: 60px;
+    background: rgba(255,255,255,0.03);
+    position: relative;
+  }
+
+  .price-plan.featured {
+    background: var(--accent);
+    color: var(--black);
+  }
+
+  .plan-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0.7;
+  }
+
+  .plan-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 72px;
+    font-weight: 800;
+    letter-spacing: -4px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .plan-price sup {
+    font-size: 28px;
+    letter-spacing: -1px;
+    vertical-align: top;
+    margin-top: 12px;
+    display: inline-block;
+  }
+
+  .plan-period {
+    font-size: 13px;
+    opacity: 0.6;
+    margin-bottom: 40px;
+  }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .plan-features li {
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+
+  .plan-features li::before {
+    content: '—';
+    opacity: 0.5;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .price-plan.featured .plan-features li::before {
+    content: '✓';
+    opacity: 1;
+    font-weight: bold;
+  }
+
+  .btn-plan {
+    display: block;
+    text-align: center;
+    padding: 16px 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid currentColor;
+  }
+
+  .price-plan:not(.featured) .btn-plan {
+    color: var(--off-white);
+    border-color: var(--border);
+  }
+
+  .price-plan:not(.featured) .btn-plan:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .price-plan.featured .btn-plan {
+    background: var(--black);
+    color: var(--off-white);
+    border-color: var(--black);
+  }
+
+  .price-plan.featured .btn-plan:hover {
+    background: rgba(0,0,0,0.8);
+  }
+
+  .savings-note {
+    margin-top: 32px;
+    padding: 20px 28px;
+    background: rgba(200,245,66,0.06);
+    border-left: 2px solid var(--accent);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .savings-note strong {
+    color: var(--accent);
+  }
+
+  /* FAQ */
+  .faq-list {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .faq-item {
+    background: rgba(255,255,255,0.02);
+    overflow: hidden;
+  }
+
+  .faq-q {
+    padding: 24px 32px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.2s;
+    letter-spacing: -0.3px;
+    user-select: none;
+  }
+
+  .faq-q:hover { background: rgba(255,255,255,0.03); }
+
+  .faq-q::after {
+    content: '+';
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+
+  .faq-item.open .faq-q::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.8;
+    padding: 0 32px;
+  }
+
+  .faq-item.open .faq-a {
+    max-height: 300px;
+    padding: 0 32px 28px;
+  }
+
+  /* CTA FINAL */
+  .cta-final {
+    padding: 120px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(200,245,66,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-final h2 {
+    font-size: clamp(40px, 6vw, 76px);
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .cta-final p {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 480px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    background: rgba(200,245,66,0.03);
+  }
+
+  .ticker {
+    display: flex;
+    gap: 80px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker span {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .ticker span em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .problem-grid,
+    .features-layout,
+    .pricing-card { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .comparison-bar .container { gap: 28px; }
+    h1 { letter-spacing: -2px; }
+    .vs-table { font-size: 12px; }
+    .vs-table th, .vs-table td { padding: 14px 16px; }
+    .price-plan { padding: 40px 32px; }
+    nav { padding: 20px; }
+    .hero { padding: 80px 20px 60px; }
+    section { padding: 70px 0; }
+  }
+
+  @media (max-width: 480px) {
+    .steps { grid-template-columns: 1fr; }
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">WP<span>Retention</span></div>
+  <div style="display:flex;gap:32px;align-items:center;">
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="https://checkout.freemius.com/plugin/27524/plan/45522/" class="nav-cta">Get the plugin →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">WordPress Anti-Churn Plugin</div>
+  <h1>
+    Stop losing<br>
+    <span class="line2">subscribers</span>
+    <span class="line3">before they leave.</span>
+  </h1>
+  <p class="hero-sub">
+    WP Retention detects at-risk members <strong>before they click cancel</strong> — and automatically takes action. No SaaS subscription. No data leaving your server. <strong>100% WordPress-native.</strong>
+  </p>
+  <div class="hero-actions">
+    <a href="https://checkout.freemius.com/plugin/27524/plan/45522/" class="btn-primary">Get WP Retention — $79/yr →</a>
+    <span class="hero-price-note">Works with <strong>MemberPress</strong> & <strong>WooCommerce Subscriptions</strong></span>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span>Churn Solution costs <em>$1,188/year</em></span>
+    <span>WP Retention costs <em>$79/year</em></span>
+    <span>Your data stays <em>on your server</em></span>
+    <span>GDPR compliant <em>by design</em></span>
+    <span>Detects churn <em>before it happens</em></span>
+    <span>Works with <em>MemberPress & WooCommerce</em></span>
+    <span>No monthly fees. <em>Ever.</em></span>
+    <span>Churn Solution costs <em>$1,188/year</em></span>
+    <span>WP Retention costs <em>$79/year</em></span>
+    <span>Your data stays <em>on your server</em></span>
+    <span>GDPR compliant <em>by design</em></span>
+    <span>Detects churn <em>before it happens</em></span>
+    <span>Works with <em>MemberPress & WooCommerce</em></span>
+    <span>No monthly fees. <em>Ever.</em></span>
+  </div>
+</div>
+
+<!-- COMPARISON BAR -->
+<div class="comparison-bar reveal">
+  <div class="container">
+    <div class="comp-item">
+      <span class="comp-label">Churn Solution</span>
+      <span class="comp-value bad">$99/mo</span>
+    </div>
+    <div class="comp-arrow">→</div>
+    <div class="comp-item">
+      <span class="comp-label">WP Retention</span>
+      <span class="comp-value good">$79/yr</span>
+    </div>
+    <div style="width:1px;background:var(--border);align-self:stretch;margin:0 16px;"></div>
+    <div class="comp-item">
+      <span class="comp-label">Your data</span>
+      <span class="comp-value good" style="font-size:16px;letter-spacing:0">On your server</span>
+    </div>
+    <div style="width:1px;background:var(--border);align-self:stretch;margin:0 16px;"></div>
+    <div class="comp-item">
+      <span class="comp-label">Churn detection</span>
+      <span class="comp-value good" style="font-size:16px;letter-spacing:0">Proactive scoring</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The problem</div>
+      <h2>You only find out<br>when it's too late.</h2>
+      <p style="color:var(--muted);max-width:520px;font-size:15px;line-height:1.7;margin-top:16px;">Most membership site owners react to churn. An email after cancellation. A discount when it's already done. WP Retention works the other way around.</p>
+    </div>
+    <div class="problem-grid reveal">
+      <div class="problem-card" data-n="1">
+        <h3>Churn is silent</h3>
+        <p>Your subscriber stopped logging in 3 weeks ago. Their payment failed twice. They're gone — you just don't know it yet. <strong>No tool in your dashboard is watching.</strong></p>
+      </div>
+      <div class="problem-card" data-n="2">
+        <h3>Cancel flows are too late</h3>
+        <p>Showing an offer when someone clicks "Cancel" works sometimes. But <strong>the decision was made days earlier</strong> — when they stopped reading your content.</p>
+      </div>
+      <div class="problem-card" data-n="3">
+        <h3>SaaS tools are overpriced</h3>
+        <p>The only serious churn tools cost <strong>$99–$250/month</strong>. That's $1,200–$3,000/year — for a small membership site, that's more than the churn you're trying to prevent.</p>
+      </div>
+      <div class="problem-card" data-n="4">
+        <h3>Your data leaves your server</h3>
+        <p>SaaS tools need your subscriber data to work. Session recordings, behaviour tracking, payment history. <strong>That's a GDPR problem</strong> you're signing up for every month.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">How it works</div>
+      <h2>Four steps.<br>Fully automatic.</h2>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Track signals</h3>
+        <p>WP Retention silently monitors login frequency, content consumption, and payment events — all inside your WordPress install.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Score every subscriber</h3>
+        <p>Every night, a risk score (0–100) is recalculated per subscriber based on weighted behavioral signals you control.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Trigger actions</h3>
+        <p>When a score crosses your threshold: send a personal email, apply a loyalty coupon, or flag them in your dashboard. Before they cancel.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>Intercept cancellations</h3>
+        <p>If they do reach the cancel button, a smart flow asks why — and offers the right response based on their answer. Pause, discount, or confirm.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Features</div>
+      <h2>Everything you need.<br>Nothing you don't.</h2>
+    </div>
+    <div class="features-layout reveal">
+      <div class="feature-item">
+        <div class="feature-icon">◈</div>
+        <h3>Behavioral Risk Scoring</h3>
+        <p>Weighted algorithm across login activity, content views, payment failures, and subscription age. Configurable weights per site.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <h3>Automated Retention Triggers</h3>
+        <p>Define score thresholds and attach automatic actions — WooCommerce coupons, wp_mail() notifications, or admin alerts.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">↩</div>
+        <h3>Smart Cancel Flow</h3>
+        <p>Replace the default cancel button with a configurable flow. Capture reasons, present conditional offers, log outcomes.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">▦</div>
+        <h3>At-Risk Dashboard</h3>
+        <p>A clean admin view of your most vulnerable subscribers, sorted by score. Last activity, trigger history, one-click actions.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⊕</div>
+        <h3>MemberPress Integration</h3>
+        <p>Native hooks for login tracking, account status changes, and cancel flow interception via mepr_custom_cancel_link.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⊗</div>
+        <h3>WooCommerce Subscriptions</h3>
+        <p>Full status hook coverage — payment failures, on-hold transitions, pending cancellations — all mapped to risk scoring.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VS TABLE -->
+<section style="background:rgba(255,255,255,0.015);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Comparison</div>
+      <h2>How we stack up.</h2>
+    </div>
+    <div class="reveal" style="overflow-x:auto;margin-top:0;">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th style="width:38%;">Feature</th>
+            <th>Churn Solution</th>
+            <th>ChurnKey</th>
+            <th class="highlight">WP Retention</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feature-name">Cancel flow</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Proactive risk scoring</td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Automated pre-cancel triggers</td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Data stays on your server</td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">No monthly subscription</td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">MemberPress support</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">WooCommerce Subscriptions</td>
+            <td><span class="check">✓</span></td>
+            <td><span class="partial">via Stripe only</span></td>
+            <td class="highlight"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Annual cost</td>
+            <td style="color:var(--red);">$1,188+</td>
+            <td style="color:var(--red);">$3,000+</td>
+            <td class="highlight" style="color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;">$79</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Pricing</div>
+      <h2>Simple. Honest.<br>Embarrassingly cheap.</h2>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="price-plan">
+        <div class="plan-name">Solo</div>
+        <div class="plan-price"><sup>$</sup>79</div>
+        <div class="plan-period">per year · 1 site</div>
+        <ul class="plan-features">
+          <li>Risk scoring engine</li>
+          <li>Automated triggers & coupons</li>
+          <li>Cancel flow interception</li>
+          <li>At-risk subscriber dashboard</li>
+          <li>MemberPress + WooCommerce Subs</li>
+          <li>1 year of updates & support</li>
+        </ul>
+        <a href="#" class="btn-plan">Buy Solo License →</a>
+      </div>
+      <div class="price-plan featured">
+        <div class="plan-name">Agency</div>
+        <div class="plan-price"><sup>$</sup>149</div>
+        <div class="plan-period">per year · up to 5 sites</div>
+        <ul class="plan-features">
+          <li>Everything in Solo</li>
+          <li>Up to 5 client sites</li>
+          <li>White-label admin panel</li>
+          <li>Priority email support</li>
+          <li>Early access to new features</li>
+          <li>1 year of updates & support</li>
+        </ul>
+        <a href="https://checkout.freemius.com/plugin/27524/plan/45523/" class="btn-plan">Buy Agency License →</a>
+      </div>
+    </div>
+    <div class="savings-note reveal">
+      <strong>The math is simple:</strong> If WP Retention saves just one $20/month subscriber from churning, it pays for itself in under 4 months. Keep two subscribers and you're at 3× ROI. Most sites keep dozens.
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">FAQ</div>
+      <h2>Questions.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-q">Does it work without MemberPress or WooCommerce Subscriptions?</div>
+        <div class="faq-a">No. WP Retention requires either MemberPress or WooCommerce Subscriptions (or both) to be active on your site. It hooks into their subscription events to track behavior and detect churn signals. Without one of these, there's nothing to track.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Does my subscriber data get sent anywhere?</div>
+        <div class="faq-a">Never. WP Retention is 100% WordPress-native. All scoring data, event logs, and subscriber profiles are stored in your own database — in wp_usermeta and a single custom table. Nothing leaves your server. No third-party SDK, no external API calls for data.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Will it slow down my site?</div>
+        <div class="faq-a">The daily scoring runs via WP-Cron in batches of 50 subscribers — not during user requests. The content tracking hook is lightweight and async. On a typical membership site, the performance impact is immeasurable.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What happens if I uninstall the plugin?</div>
+        <div class="faq-a">A clean uninstall removes everything: the custom events table, all wp_usermeta fields prefixed with _wpr_, and all plugin options. Your database is left exactly as it was before installation.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How is this different from Churn Solution or ChurnKey?</div>
+        <div class="faq-a">Those are SaaS products with WordPress connectors — your data flows through their servers, you pay monthly, and they only act when someone reaches the cancel button. WP Retention detects at-risk subscribers days or weeks before that — and acts automatically. No monthly fees. No external data processing.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I customize the scoring weights?</div>
+        <div class="faq-a">Yes. From the settings panel, you can adjust the weight of each scoring signal (login inactivity, content consumption, payment failures, subscription age) to match your site's specific dynamics. A content-heavy membership site might weight content inactivity higher; a SaaS-style site might prioritize payment signals.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<div class="cta-final reveal">
+  <h2>Stop watching<br><span style="color:var(--accent)">subscribers leave.</span></h2>
+  <p>One plugin. No monthly fees. No data leaving your server. Up and running in 10 minutes.</p>
+  <a href="https://checkout.freemius.com/plugin/27524/plan/45522/" class="btn-primary" style="font-size:15px;padding:18px 48px;">Get WP Retention — $79/yr →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo" style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;">WP<span style="color:var(--accent)">Retention</span></div>
+  <div style="display:flex;gap:32px;">
+    <a href="wp-retention-docs.html" style="color:var(--muted);text-decoration:none;font-size:12px;">Documentation</a>
+    <a href="wp-retention-support.html" style="color:var(--muted);text-decoration:none;font-size:12px;">Support</a>
+    <a href="wp-retention-privacy.html" style="color:var(--muted);text-decoration:none;font-size:12px;">Privacy Policy</a>
+  </div>
+  <span style="font-size:12px;color:var(--muted);">Built for WordPress operators who keep things simple.</span>
+</footer>
+
+<script>
+  // SCROLL REVEAL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(r => observer.observe(r));
+
+  // FAQ TOGGLE
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // SMOOTH SCROLL
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+</body>
+</html>
